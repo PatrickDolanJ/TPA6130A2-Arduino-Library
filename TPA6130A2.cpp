@@ -23,6 +23,11 @@ void TPA6130A2::init(byte defaultGain, Mode mode)
 }
 //------------------------Getters-------------------
 
+byte TPA6130A2::getAddress()
+{
+    return I2C_ADDRESS;
+}
+
 // Volume Registers
 byte TPA6130A2::getGain()
 {

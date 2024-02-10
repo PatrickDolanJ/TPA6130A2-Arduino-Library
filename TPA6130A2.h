@@ -9,13 +9,13 @@ Created by: PatrickDolanJ
 #pragma once
 #include <Arduino.h>
 
-#define I2C_ADDRESS 0x3C
+#define I2C_ADDRESS 0x60
 
 enum Mode
 {
-  STEREO = 0,
-  DUAL_MONO = 1,
-  BRIDGE_TIED_LOAD_RECEIVER = 2
+  M_STEREO = 0,
+  M_DUAL_MONO = 1,
+  M_BRIDGE_TIED_LOAD_RECEIVER = 2
 };
 
 class TPA6130A2
@@ -37,6 +37,7 @@ public:
   void writeMode(Mode mode);
 
   // Getters
+  byte getAddress();
   byte getGain();
   bool getLeftMute();
   bool getRightMute();
