@@ -22,7 +22,7 @@ void TPA6130A2::init(byte defaultGain, Mode mode)
     sendVolumeRegister();
 }
 
-void TPA6130A2(byte defaultGain, Mode mode, Wire *wire){
+void TPA6130A2(byte defaultGain, Mode mode, TwoWire *wire){
     this->gain = defaultGain;
     this->mode = mode;
     this.wire = wire;
