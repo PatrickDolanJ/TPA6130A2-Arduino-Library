@@ -25,7 +25,7 @@ public:
   // Setup
   TPA6130A2();
   void init(byte defaultVol, Mode mode);
-
+  void init(byte defaultVol, Mode mode, Wire *wire);
   // Setters
   void writeGain(byte Gain);
   void writeLeftMute(bool isMute);
@@ -53,6 +53,7 @@ private:
   byte MAX_GAIN = 63;
   byte MIN_GAIN = 0;
   byte clampGain(byte data);
+  TwoWire *wire = Wire;
 
   bool leftMute = false;
   bool rightMute = false;

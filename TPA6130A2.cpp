@@ -16,7 +16,17 @@ void TPA6130A2::init(byte defaultGain, Mode mode)
 {
     this->gain = defaultGain;
     this->mode = mode;
-    Wire.begin();
+    this->wire.begin();
+    delay(1);
+    sendControlRegister();
+    sendVolumeRegister();
+}
+
+void TPA6130A2(byte defaultGain, Mode mode, Wire *wire){
+    this->gain = defaultGain;
+    this->mode = mode;
+    this.wire = wire;
+    this->wire.begin();
     delay(1);
     sendControlRegister();
     sendVolumeRegister();
@@ -186,27 +196,27 @@ void TPA6130A2::sendData(byte regAddress, byte data)
     byte message[2];
     message[0] = regAddress;
     message[1] = data;
-    Wire.beginTransmission(I2C_ADDRESS);
+    this->wire.beginTransmission(I2C_ADDRESS);
     Serial.print("Sending data to register:  ");
     Serial.print(regAddress, BIN);
     Serial.print(", data: ");
     Serial.println(data, BIN);
-    // May want to break up into Wire.writes
-    Wire.write(message, 2);
-    Wire.endTransmission();
+    // May want to break up into this->wire.writes
+    this->wire.write(message, 2);
+    this->wire.endTransmission();
 }
 
 byte TPA6130A2::sendRead(byte regAddress)
 {
     byte data;
-    Wire.beginTransmission(I2C_ADDRESS);
-    Wire.write(regAddress);
-    Wire.requestFrom(I2C_ADDRESS, 1);
+    this->wire.beginTransmission(I2C_ADDRESS);
+    this->wire.write(regAddress);
+    this->wire.requestFrom(I2C_ADDRESS, 1);
 
-    if (Wire.available())
+    if (this->wire.available())
     {
-        data = Wire.read();
-        Wire.endTransmission();
+        data = this->wire.read();
+        this->wire.endTransmission();
     }
     return data;
 }
