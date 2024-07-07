@@ -16,20 +16,23 @@ void TPA6130A2::init(byte defaultGain, Mode mode)
 {
     this->gain = defaultGain;
     this->mode = mode;
-    this->wire.begin();
+    this->wire = &Wire;
+    this->wire->begin();
     delay(1);
     sendControlRegister();
     sendVolumeRegister();
 }
 
-void TPA6130A2(byte defaultGain, Mode mode, TwoWire *wire){
+void TPA6130A2::init(byte defaultGain, Mode mode, TwoWire *wire)
+{
     this->gain = defaultGain;
     this->mode = mode;
-    this.wire = wire;
-    this->wire.begin();
+    this->wire = wire;
+    this->wire->begin();
     delay(1);
     sendControlRegister();
     sendVolumeRegister();
+    Serial.println(String(this->getGain()));
 }
 //------------------------Getters-------------------
 
@@ -175,7 +178,7 @@ void TPA6130A2::sendImpedanceRegister()
 
 byte TPA6130A2::buildVolumeRegisterData()
 {
-    byte data = (!this->leftMute << 7) | (!this->rightMute << 6) | (this->gain & 0x3F);
+    byte data = (this->leftMute << 7) | (this->rightMute << 6) | (this->gain & 0x3F);
     return data;
 }
 
@@ -196,28 +199,29 @@ void TPA6130A2::sendData(byte regAddress, byte data)
     byte message[2];
     message[0] = regAddress;
     message[1] = data;
-    this->wire.beginTransmission(I2C_ADDRESS);
+    this->wire->beginTransmission(I2C_ADDRESS);
     Serial.print("Sending data to register:  ");
     Serial.print(regAddress, BIN);
     Serial.print(", data: ");
     Serial.println(data, BIN);
-    // May want to break up into this->wire.writes
-    this->wire.write(message, 2);
-    this->wire.endTransmission();
+    // May want to break up into this->wire->writes
+    this->wire->write(message, 2);
+    this->wire->endTransmission();
 }
 
 byte TPA6130A2::sendRead(byte regAddress)
 {
-    byte data;
-    this->wire.beginTransmission(I2C_ADDRESS);
-    this->wire.write(regAddress);
-    this->wire.requestFrom(I2C_ADDRESS, 1);
-
-    if (this->wire.available())
+    byte data = 0x0;
+    this->wire->beginTransmission(I2C_ADDRESS);
+    this->wire->write(regAddress);
+    this->wire->requestFrom(I2C_ADDRESS, 1);
+    delay(1);
+    while (this->wire->available())
     {
-        data = this->wire.read();
-        this->wire.endTransmission();
+        data = this->wire->read();
+        Serial.println("DATA: " + String(data));
     }
+    this->wire->endTransmission();
     return data;
 }
 
@@ -227,7 +231,7 @@ void TPA6130A2::readVolumeRegister()
 {
     byte data = sendRead(TPA6130_VOLUME_AND_MUTE_REGISTER);
 
-    if (data != NULL)
+    if (data != 0x0)
     {
         this->leftMute = (data >> 7) & 0x1;
         this->rightMute = (data >> 6) & 0x1;
@@ -239,7 +243,7 @@ void TPA6130A2::readControlRegister()
 {
     byte data = sendRead(TPA6130_CONTROL_REGISTER);
 
-    if (data != NULL)
+    if (data != 0x0)
     {
         this->leftEnabled = (data >> 7) & 0x1;
         this->rightEnabled = (data >> 6) & 0x1;
@@ -250,7 +254,7 @@ void TPA6130A2::readImpedanceRegister()
 {
     byte data = sendRead(TPA6130_OUTPUT_IMPEDANCE_REGISTER);
 
-    if (data != NULL)
+    if (data != 0x0)
     {
         leftHighImpedance = data & 0x2;
         rightHighImpedance = data & 0x1;
